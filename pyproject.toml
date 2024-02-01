@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
-windows-curses = {version = "^2.3.2", platform = "win32"}
+windows-curses = { version = "^2.3.2", platform = "win32" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"

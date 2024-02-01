@@ -1,7 +1,7 @@
 import curses
 
-from grid import Grid
-from display import Display
+from game_of_life.grid import Grid
+from game_of_life.display import Display
 
 
 grid = Grid()
