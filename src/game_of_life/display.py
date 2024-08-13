@@ -1,7 +1,7 @@
 import curses
 
-from game_of_life.grid import Grid
-from game_of_life.driver import Driver
+from grid import Grid
+from driver import Driver
 
 
 class Display:
