@@ -1,8 +1,7 @@
 import pytest
 
-from src.game_of_life.grid import Grid
-from src.game_of_life.driver import Driver
-
+from game_of_life.driver import Driver
+from game_of_life.grid import Grid
 
 NUM_ROWS = 5
 NUM_COLS = 5
@@ -48,35 +47,6 @@ class TestDriver:
             ((3, 0), 1),
             ((3, 1), 1),
         )
-
-    def test_alive_neighbors(self, driver: Driver) -> None:
-        driver.grid.set_cell(0, 0, 1)
-        driver.grid.set_cell(1, 0, 1)
-        driver.grid.set_cell(2, 0, 1)
-        driver.grid.set_cell(0, 1, 1)
-
-        assert driver.alive_neighbors(-1, -1) == 1
-        assert driver.alive_neighbors(-1, 0) == 2
-        assert driver.alive_neighbors(-1, 1) == 2
-        assert driver.alive_neighbors(-1, 2) == 1
-
-        assert driver.alive_neighbors(0, -1) == 2
-        assert driver.alive_neighbors(0, 0) == 2
-        assert driver.alive_neighbors(0, 1) == 2
-        assert driver.alive_neighbors(0, 2) == 1
-
-        assert driver.alive_neighbors(1, -1) == 3
-        assert driver.alive_neighbors(1, 0) == 3
-        assert driver.alive_neighbors(1, 1) == 4
-        assert driver.alive_neighbors(1, 2) == 1
-
-        assert driver.alive_neighbors(2, -1) == 2
-        assert driver.alive_neighbors(2, 0) == 1
-        assert driver.alive_neighbors(2, 1) == 2
-
-        assert driver.alive_neighbors(3, -1) == 1
-        assert driver.alive_neighbors(3, 0) == 1
-        assert driver.alive_neighbors(3, 1) == 1
 
     def test_next_generation(self, driver: Driver) -> None:
         driver.grid.set_cell(0, 0, 1)

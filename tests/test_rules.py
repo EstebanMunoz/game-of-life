@@ -1,4 +1,4 @@
-from src.game_of_life.rules import game_rules
+from game_of_life.rules import game_rules
 
 
 def test_rules() -> None:

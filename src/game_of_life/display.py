@@ -1,120 +1,110 @@
-import curses
+from dataclasses import astuple, dataclass
 
-from game_of_life.grid import Grid
-from game_of_life.driver import Driver
+from textual.app import App, ComposeResult
+from textual.containers import Center, Horizontal, Vertical
+from textual.message import Message
+from textual.reactive import reactive
+from textual.widgets import Button, Header, Static
 
 
-class Display:
-    def __init__(
-        self,
-        grid: Grid | None = None,
-        grid_style: str = "simple",
-        padding: dict[str, int] | None = None,
-    ) -> None:
-        if grid is None:
-            self.grid = Grid()
-        else:
-            self.grid = grid
+@dataclass
+class GridLimits:
+    """Class for keeping track of the grid screen limits."""
 
-        if padding is None:
-            self.padding = {"top": 1, "bottom": 1, "left": 1, "right": 1}
-        else:
-            self.padding = padding
+    top: int
+    right: int
+    bottom: int
+    left: int
 
-        self.grid_style = grid_style
-        self.screen_rows, self.screen_cols = self.screen_limits(curses.initscr())
-        self.left_limit = (
-            -(
-                (self.screen_cols + 1 - (self.padding["left"] + self.padding["right"]))
-                // 2
-                - 1
-            )
-            // 2
-        )
-        self.right_limit = (
-            (self.screen_cols + 1 - (self.padding["left"] + self.padding["right"])) // 2
-            - 1
-        ) // 2
-        self.top_limit = (
-            -(self.screen_rows - (self.padding["top"] + self.padding["bottom"]) - 1)
-            // 2
-        )
-        self.bottom_limit = (
-            self.screen_rows - (self.padding["top"] + self.padding["bottom"]) - 1
-        ) // 2
+    def __iter__(self):
+        return iter(astuple(self))
 
-    def screen_limits(self, stdscr: curses.window) -> tuple[int, int]:
-        max_y, max_x = stdscr.getmaxyx()
-        return max_y, max_x
+
+class GridInformation(Static):
+    """Displays information about the grid"""
+
+    limits = reactive(GridLimits(0, 0, 0, 0))
+
+    def watch_limits(self) -> None:
+        self.update(self.grid_information)
+
+    @property
+    def grid_information(self) -> str:
+        top, right, bottom, left = self.limits
+        info = f"Rows: {bottom}, {top} Cols: {left}, {right}"
+        return info
+
+
+class GridDisplay(Static):
+    """A widget that shows the visible grid"""
+
+    class SizeChanged(Message):
+        """Custom Message that carries the new grid limits"""
+
+        def __init__(self, limits) -> None:
+            super().__init__()
+            self.limits = limits
+
+    limits = GridLimits(0, 0, 0, 0)
+    dead_cell = "·"
+    alive_cell = "■"  # Not used yet
+    cells = ((0, 0), (1, 0), (0, 1), (-1, 1), (-1, 2), (-1, 3))
+
+    def draw_cells(self) -> str:
+        width, height = self.size
+        cells = f"{self.dead_cell} " * ((width + 1) // 2) * height
+        in_screen = []
+        for cell in self.cells:
+            if self.is_cell_in_screen(*cell):
+                in_screen.append(cell)
+
+        for cell in in_screen:
+            coord = self.get_screen_coordinates(*cell)
+            cells = f"{cells[:coord]}{self.alive_cell}{cells[coord+1:]}"
+
+        return cells
 
     def is_cell_in_screen(self, row: int, col: int) -> bool:
-        row_condition = self.top_limit <= row <= self.bottom_limit
-        col_condition = self.left_limit <= col <= self.right_limit
+        row_condition = self.limits.bottom <= row <= self.limits.top
+        col_condition = self.limits.left <= col <= self.limits.right
         return row_condition and col_condition
 
-    def get_screen_coordinates(self, row: int, col: int) -> tuple[int, int]:
+    def get_screen_coordinates(self, row: int, col: int) -> int:
         if not self.is_cell_in_screen(row, col):
             raise ValueError("Cell is not in screen")
-        screen_row = self.padding["top"] + row - self.top_limit
-        screen_col = self.padding["left"] + (col - self.left_limit) * 2
-        return screen_row, screen_col
 
-    def print_cell(self, row: int, col: int, stdscr: curses.window) -> str:
-        if self.is_cell_in_screen(row, col):
-            screen_row, screen_col = self.get_screen_coordinates(row, col)
-            stdscr.addstr(screen_row, screen_col, "■")
+        screen_row = self.limits.top - row
+        screen_col = (col - self.limits.left) * 2
+        print(f"Width: {self.size.width} Height: {self.size.height}")
+        print(f"Screen row: {screen_row} Screen col: {screen_col}")
+        return (self.size.width + 1) // 2 * 2 * screen_row + screen_col
 
-    def center_text(self, text: str, row: int, stdscr: curses.window) -> None:
-        stdscr.addstr(row, (self.screen_cols - len(text)) // 2, text)
+    def set_limits(self, width: int, height: int) -> None:
+        left = -((width - 1) // 2) // 2
+        right = ((width - 1) // 2) // 2
+        top = (height - 1) // 2
+        bottom = -(height - 1) // 2
+        self.limits = GridLimits(top, right, bottom, left)
 
-    def display(self, stdscr: curses.window) -> None:
-        driver = Driver(self.grid)
-        curses.curs_set(0)
-        stdscr.nodelay(True)
+    def on_resize(self) -> None:
+        width, height = self.size
+        self.set_limits(width, height)
+        self.post_message(self.SizeChanged(self.limits))
+        self.update(self.draw_cells())
 
-        while True:
-            key = stdscr.getch()
-            if key == curses.KEY_LEFT:
-                stdscr.clear()
-                self.left_limit -= 1
-                self.right_limit -= 1
-            elif key == curses.KEY_RIGHT:
-                stdscr.clear()
-                self.left_limit += 1
-                self.right_limit += 1
-            elif key == curses.KEY_UP:
-                stdscr.clear()
-                self.top_limit -= 1
-                self.bottom_limit -= 1
-            elif key == curses.KEY_DOWN:
-                stdscr.clear()
-                self.top_limit += 1
-                self.bottom_limit += 1
-            elif key == ord(" "):
-                driver.next_generation()
-            elif key == ord("q"):
-                curses.endwin()
-                exit(0)
 
-            game_status = f"Rows: {self.top_limit}, {self.bottom_limit}  Cols: {self.left_limit}, {self.right_limit}  Generation: {driver.generation}"
-            instructions = (
-                "q: exit  Spacebar: next generation  ←: left  →: right  ↑: up  ↓: down"
-            )
-            if len(game_status) < self.screen_cols:
-                self.center_text(game_status, 0, stdscr)
+class GameOfLifeApp(App):
+    TITLE = "Game of Life"
+    SUB_TITLE = "By John Conway"
+    CSS_PATH = "textual_app.tcss"
 
-            if len(instructions) < self.screen_cols:
-                self.center_text(instructions, 1, stdscr)
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Vertical(Center(GridInformation()), GridDisplay())
+        yield Horizontal(
+            Button("Next"), Button("Play"), Button("Stop"), Button("Reset")
+        )
 
-            for row in range(
-                self.padding["top"], self.screen_rows - self.padding["bottom"]
-            ):
-                for col in range(
-                    self.padding["left"], self.screen_cols - self.padding["right"], 2
-                ):
-                    stdscr.addstr(row, col, "·")
-
-            for row, col in self.grid.alive_cells:
-                self.print_cell(row, col, stdscr)
-
-            stdscr.refresh()
+    def on_grid_display_size_changed(self, event: GridDisplay.SizeChanged) -> None:
+        limits = event.limits
+        self.query_one(GridInformation).limits = limits

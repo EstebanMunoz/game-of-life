@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from game_of_life.rules import game_rules
 from game_of_life.grid import Grid
+from game_of_life.rules import game_rules
 
 
 class Driver:
@@ -27,9 +27,6 @@ class Driver:
             candidate_cells[x + 1, y + 1] += 1
 
         return candidate_cells
-
-    def alive_neighbors(self, row: int, col: int) -> int:
-        return self.candidates[row, col]
 
     @property
     def current_generation(self):

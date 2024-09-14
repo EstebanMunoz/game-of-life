@@ -1,8 +1,8 @@
-import pytest
 import random
 
-from src.game_of_life.grid import Grid
+import pytest
 
+from game_of_life.grid import Grid
 
 NUM_ROWS = 3
 NUM_COLS = 3
