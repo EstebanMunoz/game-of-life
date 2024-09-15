@@ -2,10 +2,10 @@ from __future__ import annotations
 
 
 class Grid:
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, cells: dict | None = None) -> None:
         self._grid = dict()
-        if other_grid := kwargs.get("grid"):
-            self._grid = other_grid._grid.copy()
+        if cells is not None:
+            self._grid = {**cells}
 
     def set_cell(self, row: int, col: int, value: int) -> None:
         if not isinstance(value, int):
@@ -21,6 +21,9 @@ class Grid:
     @property
     def alive_cells(self) -> tuple[tuple[int, int]]:
         return tuple(self._grid.keys())
+
+    def copy(self) -> Grid:
+        return Grid(self._grid)
 
     def clear(self) -> None:
         self._grid.clear()

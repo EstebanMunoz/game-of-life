@@ -18,6 +18,10 @@ def driver(grid: Grid) -> Driver:
 
 
 class TestDriver:
+    def test_init(self, driver: Driver) -> None:
+        assert driver.grid != driver.initial_grid
+        assert driver.generation == 1
+
     def test_candidates(self, driver: Driver) -> None:
         driver.grid.set_cell(0, 0, 1)
         driver.grid.set_cell(1, 0, 1)
@@ -48,6 +52,21 @@ class TestDriver:
             ((3, 1), 1),
         )
 
+    def test_current_generation(self, driver: Driver) -> None:
+        driver.grid.set_cell(0, 0, 1)
+        driver.grid.set_cell(1, 0, 1)
+        driver.grid.set_cell(2, 0, 1)
+        driver.grid.set_cell(0, 1, 1)
+
+        current_generation = tuple(sorted(driver.current_generation))
+
+        assert current_generation == (
+            (0, 0),
+            (0, 1),
+            (1, 0),
+            (2, 0),
+        )
+
     def test_next_generation(self, driver: Driver) -> None:
         driver.grid.set_cell(0, 0, 1)
         driver.grid.set_cell(1, 0, 1)
@@ -63,3 +82,17 @@ class TestDriver:
             (1, -1),
             (1, 0),
         )
+
+    def test_reset_generations(self, driver: Driver) -> None:
+        driver.grid.set_cell(0, 0, 1)
+        driver.grid.set_cell(1, 0, 1)
+        driver.grid.set_cell(2, 0, 1)
+        driver.grid.set_cell(0, 1, 1)
+
+        driver.reset_generations()
+        grid = driver.grid
+        initial_grid = driver.initial_grid
+        assert grid.alive_cells == initial_grid.alive_cells
+        assert id(grid) != id(initial_grid)
+        assert id(grid._grid) != id(initial_grid._grid)
+        # assert driver.generation == 1

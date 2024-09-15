@@ -6,10 +6,11 @@ from game_of_life.model.rules import game_rules
 
 class Driver:
     def __init__(self, grid: Grid | None = None) -> None:
+        self.initial_grid = grid
         if grid is None:
-            self.grid = Grid()
-        else:
-            self.grid = grid
+            self.initial_grid = Grid()
+
+        self.grid = self.initial_grid.copy()
         self.generation = 1
 
     @property
@@ -29,7 +30,7 @@ class Driver:
         return candidate_cells
 
     @property
-    def current_generation(self):
+    def current_generation(self) -> tuple[tuple[int, int]]:
         return self.grid.alive_cells
 
     def next_generation(self) -> None:
@@ -43,3 +44,7 @@ class Driver:
             self.grid.set_cell(row, col, new_state)
 
         self.generation += 1
+
+    def reset_generations(self) -> None:
+        self.grid = self.initial_grid.copy()
+        self.generation = 1

@@ -61,3 +61,21 @@ class TestGrid:
 
         grid.set_cell(0, 0, 0)
         assert grid.alive_cells == ((0, 1),)
+
+    def test_copy(self, grid: Grid) -> None:
+        for _ in range(NUM_RAND_TESTS):
+            row, col = self.random_cell()
+            grid.set_cell(row, col, 1)
+
+        new_grid = grid.copy()
+        assert new_grid.alive_cells == grid.alive_cells
+        assert id(new_grid) != id(grid)
+        assert id(new_grid._grid) != id(grid._grid)
+
+    def test_clear(self, grid: Grid) -> None:
+        for _ in range(NUM_RAND_TESTS):
+            row, col = self.random_cell()
+            grid.set_cell(row, col, 1)
+
+        grid.clear()
+        assert len(grid) == 0
