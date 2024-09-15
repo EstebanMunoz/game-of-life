@@ -1,7 +1,7 @@
 [project]
 name = "game-of-life"
 version = "0.2.0"
-description = "Implementación en Python de 'Game of Life' de John Conway, llevado a cabo con el propósito de probar el framework pytest."
+description = "Implementación en Python y textual de 'Game of Life' de John Conway"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -16,7 +16,6 @@ dev-dependencies = [
 
 [project.scripts]
 game-of-life = "game_of_life:main"
-
 
 [build-system]
 requires = ["hatchling"]
