@@ -1,6 +1,11 @@
+from __future__ import annotations
+
+
 class Grid:
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
         self._grid = dict()
+        if other_grid := kwargs.get("grid"):
+            self._grid = other_grid._grid.copy()
 
     def set_cell(self, row: int, col: int, value: int) -> None:
         if not isinstance(value, int):

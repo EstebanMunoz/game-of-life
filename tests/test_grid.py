@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from game_of_life.grid import Grid
+from game_of_life.model.grid import Grid
 
 NUM_ROWS = 3
 NUM_COLS = 3

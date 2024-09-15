@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from game_of_life.grid import Grid
-from game_of_life.rules import game_rules
+from game_of_life.model.grid import Grid
+from game_of_life.model.rules import game_rules
 
 
 class Driver:
