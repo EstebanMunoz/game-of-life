@@ -15,10 +15,24 @@ GridDisplay {
 }
 
 Button {
+    width: auto;
     margin: 0 5;
 }
 
 Horizontal {
+    width: 100%;
     height: auto;
     align: center middle;
+}
+
+#stop {
+    display: none;
+}
+
+.playing #play {
+    display: none;
+}
+
+.playing #stop {
+    display: block;
 }

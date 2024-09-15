@@ -10,7 +10,7 @@ from game_of_life.ui.grid import GridDisplay, GridInformation
 class GameOfLifeApp(App):
     TITLE = "Game of Life"
     SUB_TITLE = "By John Conway"
-    CSS_PATH = "display.tcss"
+    CSS_PATH = "game_of_life.tcss"
 
     BINDINGS = [
         ("left", "move_grid('left')", "Moves the grid one unit left"),
@@ -22,8 +22,6 @@ class GameOfLifeApp(App):
     def __init__(self, grid: Grid) -> None:
         super().__init__()
         self.grid = grid
-        if grid is None:
-            self.grid = Grid()
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -49,14 +47,25 @@ class GameOfLifeApp(App):
         grid_info.generation = grid_display.driver.generation
         grid_display.update(grid_display.draw_cells())
 
-    # TODO: Fix this
     @on(Button.Pressed, "#reset")
     def call_reset(self) -> None:
         grid_display = self.query_one(GridDisplay)
         grid_info = self.query_one(GridInformation)
-        grid_display.grid = Grid(grid=grid_display.initial_grid)
+        grid_display.driver.reset_generations()
         grid_info.generation = grid_display.driver.generation
         grid_display.update(grid_display.draw_cells())
+
+    @on(Button.Pressed, "#play")
+    def call_play(self) -> None:
+        self.add_class("playing")
+        self.query_one("#next").disabled = True
+        self.query_one("#reset").disabled = True
+
+    @on(Button.Pressed, "#stop")
+    def call_stop(self) -> None:
+        self.remove_class("playing")
+        self.query_one("#next").disabled = False
+        self.query_one("#reset").disabled = False
 
     def action_move_grid(self, direction: str) -> None:
         grid_display = self.query_one(GridDisplay)

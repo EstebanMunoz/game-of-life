@@ -41,21 +41,16 @@ class GridDisplay(Static):
 
     limits = reactive(GridLimits(0, 0, 0, 0))
 
-    def __init__(self, grid: Grid | None = None) -> None:
+    def __init__(self, grid: Grid) -> None:
         super().__init__()
-        self.initial_grid = grid
-        if grid is None:
-            self.initial_grid = Grid()
-
-        self.grid = Grid(grid=self.initial_grid)
-        self.driver = Driver(self.grid)
+        self.driver = Driver(grid)
         self.dead_cell = "·"
         self.alive_cell = "■"
 
     def draw_cells(self) -> str:
         width, height = self.size
         cells = f"{self.dead_cell} " * ((width + 1) // 2) * height
-        cells_in_screen = filter(self.is_cell_in_screen, self.grid.alive_cells)
+        cells_in_screen = filter(self.is_cell_in_screen, self.driver.current_generation)
 
         for cell in cells_in_screen:
             coord = self.get_screen_coordinates(cell)
