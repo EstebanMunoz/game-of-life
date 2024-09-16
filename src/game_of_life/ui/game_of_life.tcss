@@ -17,6 +17,11 @@ GridDisplay {
 Button {
     width: auto;
     margin: 0 5;
+    
+    &:focus {
+        background: $panel-darken-1;
+        text-style: bold;
+    }
 }
 
 Horizontal {
