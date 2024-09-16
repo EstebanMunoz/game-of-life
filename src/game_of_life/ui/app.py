@@ -21,12 +21,12 @@ class GameOfLifeApp(App):
     ]
 
     time = reactive(0.0)
-    interval = 0.5
 
-    def __init__(self, grid: Grid) -> None:
+    def __init__(self, grid: Grid, interval: float = 0.5) -> None:
         super().__init__()
         self.grid = grid
         self.timer_started = False
+        self.interval = interval
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -63,6 +63,7 @@ class GameOfLifeApp(App):
 
     def stop(self):
         """Method to stop the time display updating."""
+        self.update_timer.reset()
         self.update_timer.pause()
 
     def on_grid_display_size_changed(self, event: GridDisplay.SizeChanged) -> None:
