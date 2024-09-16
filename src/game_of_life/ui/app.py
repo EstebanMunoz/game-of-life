@@ -1,6 +1,7 @@
 from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Center, Horizontal, Vertical
+from textual.reactive import reactive
 from textual.widgets import Button, Header
 
 from game_of_life.model.grid import Grid
@@ -19,9 +20,13 @@ class GameOfLifeApp(App):
         ("down", "move_grid('bottom')", "Moves the grid one unit down"),
     ]
 
+    time = reactive(0.0)
+    interval = 0.5
+
     def __init__(self, grid: Grid) -> None:
         super().__init__()
         self.grid = grid
+        self.timer_started = False
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -35,17 +40,45 @@ class GameOfLifeApp(App):
             yield Button(" Stop", id="stop")
             yield Button("󰜉 Reset", id="reset")
 
+    def on_mount(self) -> None:
+        """Event handler called when widget is added to the app."""
+        self.update_timer = self.set_interval(
+            self.interval, self.update_time, pause=True
+        )
+
+    def update_time(self) -> None:
+        """Method to update time to current."""
+        self.time += self.interval
+
+    def watch_time(self) -> None:
+        """Called when the time attribute changes."""
+        if self.timer_started:
+            self.next_generation()
+        else:
+            self.timer_started = True
+
+    def start(self) -> None:
+        """Method to start (or resume) time updating."""
+        self.update_timer.resume()
+
+    def stop(self):
+        """Method to stop the time display updating."""
+        self.update_timer.pause()
+
     def on_grid_display_size_changed(self, event: GridDisplay.SizeChanged) -> None:
         limits = event.limits
         self.query_one(GridInformation).limits = limits
 
-    @on(Button.Pressed, "#next")
-    def call_next_generation(self) -> None:
+    def next_generation(self) -> None:
         grid_display = self.query_one(GridDisplay)
         grid_info = self.query_one(GridInformation)
         grid_display.driver.next_generation()
         grid_info.generation = grid_display.driver.generation
         grid_display.update(grid_display.draw_cells())
+
+    @on(Button.Pressed, "#next")
+    def call_next_generation(self) -> None:
+        self.next_generation()
 
     @on(Button.Pressed, "#reset")
     def call_reset(self) -> None:
@@ -60,12 +93,14 @@ class GameOfLifeApp(App):
         self.add_class("playing")
         self.query_one("#next").disabled = True
         self.query_one("#reset").disabled = True
+        self.start()
 
     @on(Button.Pressed, "#stop")
     def call_stop(self) -> None:
         self.remove_class("playing")
         self.query_one("#next").disabled = False
         self.query_one("#reset").disabled = False
+        self.stop()
 
     def action_move_grid(self, direction: str) -> None:
         grid_display = self.query_one(GridDisplay)
