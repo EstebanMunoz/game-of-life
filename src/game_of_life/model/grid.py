@@ -3,7 +3,7 @@ from __future__ import annotations
 
 class Grid:
     def __init__(self, cells: dict | None = None) -> None:
-        self._grid = dict()
+        self._grid = {}
         if cells is not None:
             self._grid = {**cells}
 

@@ -22,7 +22,7 @@ class GameOfLifeApp(App):
 
     time = reactive(0.0)
 
-    def __init__(self, grid: Grid, interval: float = 0.5) -> None:
+    def __init__(self, grid: Grid, interval: float = 0.2) -> None:
         super().__init__()
         self.grid = grid
         self.timer_started = False
@@ -61,7 +61,7 @@ class GameOfLifeApp(App):
         """Method to start (or resume) time updating."""
         self.update_timer.resume()
 
-    def stop(self):
+    def stop(self) -> None:
         """Method to stop the time display updating."""
         self.update_timer.reset()
         self.update_timer.pause()

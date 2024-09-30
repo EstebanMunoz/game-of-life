@@ -95,4 +95,4 @@ class TestDriver:
         assert grid.alive_cells == initial_grid.alive_cells
         assert id(grid) != id(initial_grid)
         assert id(grid._grid) != id(initial_grid._grid)
-        # assert driver.generation == 1
+        assert driver.generation == 1

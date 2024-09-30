@@ -44,7 +44,7 @@ class TestGrid:
             grid.set_cell(row, col, 0)
             assert grid[row, col] == 0
 
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError, match="value must be 0 or 1"):
                 grid.set_cell(row, col, 2)
 
             with pytest.raises(TypeError):

@@ -19,7 +19,7 @@ class GridInformation(Static):
     def watch_limits(self) -> None:
         self.update(self.grid_information)
 
-    def watch_generation(self):
+    def watch_generation(self) -> None:
         self.update(self.grid_information)
 
     @property
